@@ -1,10 +1,12 @@
-var DotDigraph = require("./DotDigraph"),
-    DotGraph = require("./DotGraph");
+part of graphlib.dot;
 
-var dot_parser = require("./dot-grammar");
+//var DotDigraph = require("./DotDigraph"),
+//    DotGraph = require("./DotGraph");
 
-module.exports = parse;
-module.exports.parseMany = parseMany;
+var dot_parser = new Parser();
+
+//module.exports = parse;
+//module.exports.parseMany = parseMany;
 
 /*
  * Parses a single DOT graph from the given string and returns it as one of:
@@ -16,7 +18,7 @@ module.exports.parseMany = parseMany;
  *
  * @param {String} str the DOT string representation of one or more graphs
  */
-function parse(str) {
+parse(str) {
   var parseTree = dot_parser.parse(str, "graphStmt");
   return buildGraph(parseTree);
 }
@@ -29,18 +31,18 @@ function parse(str) {
  *
  * @param {String} str the DOT string representation of one or more graphs
  */
-function parseMany(str) {
+parseMany(str) {
   var parseTree = dot_parser.parse(str);
 
-  return parseTree.map(function(subtree) {
+  return parseTree.map((subtree) {
     return buildGraph(subtree);
   });
 }
 
-function buildGraph(parseTree) {
-  var g = parseTree.type === "graph" ? new DotGraph() : new DotDigraph();
+buildGraph(parseTree) {
+  var g = parseTree.type == "graph" ? new DotGraph() : new DotDigraph();
 
-  function createNode(id, attrs, sg) {
+  createNode(id, attrs, sg) {
     if (!(g.hasNode(id))) {
       // We only apply default attributes to a node when it is first defined.
       // If the node is subsequently used in edges, we skip apply default
@@ -49,11 +51,11 @@ function buildGraph(parseTree) {
 
       // The "label" attribute is given special treatment: if it is not
       // defined we set it to the id of the node.
-      if (g.node(id).label === undefined) {
+      if (g.node(id).label == null) {
         g.node(id).label = id;
       }
 
-      if (sg !== null) {
+      if (sg != null) {
         g.parent(id, sg);
       }
     }
@@ -62,21 +64,21 @@ function buildGraph(parseTree) {
     }
   }
 
-  function createEdge(source, target, attrs) {
+  createEdge(source, target, attrs) {
     var edge = {};
     mergeAttributes(defaultAttrs.get("edge", attrs), edge);
     var id = attrs.id ? attrs.id : null;
     g.addEdge(id, source, target, edge);
   }
 
-  function collectNodeIds(stmt) {
+  collectNodeIds(stmt) {
     var ids = {},
         stack = [],
         curr;
-    function pushStack(e) { stack.push(e); }
+    pushStack(e) { stack.push(e); }
 
     pushStack(stmt);
-    while (stack.length !== 0) {
+    while (stack.length != 0) {
       curr = stack.pop();
       switch (curr.type) {
         case "node": ids[curr.id] = true; break;
@@ -101,8 +103,8 @@ function buildGraph(parseTree) {
   var defaultAttrs = {
     _default: {},
 
-    get: function get(type, attrs) {
-      if (typeof this._default[type] !== "undefined") {
+    'get': get(type, attrs) {
+      if (typeof(this._default[type]) != "undefined") {
         var mergedAttrs = {};
         // clone default attributes so they won't get overwritten in the next step
         mergeAttributes(this._default[type], mergedAttrs);
@@ -114,23 +116,23 @@ function buildGraph(parseTree) {
       }
     },
 
-    set: function set(type, attrs) {
+    'set': set(type, attrs) {
       this._default[type] = this.get(type, attrs);
     },
 
-    enterSubDigraph: function() {
-      function SubDigraph() {}
+    'enterSubDigraph': () {
+      SubDigraph() {}
       SubDigraph.prototype = this._default;
       var subgraph = new SubDigraph();
       this._default = subgraph;
     },
 
-    exitSubDigraph: function() {
+    'exitSubDigraph': () {
       this._default = Object.getPrototypeOf(this._default);
     }
   };
 
-  function handleStmt(stmt, sg) {
+  handleStmt(stmt, sg) {
     var attrs = stmt.attrs;
     switch (stmt.type) {
       case "node":
@@ -139,7 +141,7 @@ function buildGraph(parseTree) {
       case "edge":
         var prev,
             curr;
-        stmt.elems.forEach(function(elem) {
+        stmt.elems.forEach((elem) {
           handleStmt(elem, sg);
 
           switch(elem.type) {
@@ -151,8 +153,8 @@ function buildGraph(parseTree) {
           }
 
           if (prev) {
-            prev.forEach(function(p) {
-              curr.forEach(function(c) {
+            prev.forEach((p) {
+              curr.forEach((c) {
                 createEdge(p, c, attrs);
               });
             });
@@ -163,12 +165,12 @@ function buildGraph(parseTree) {
       case "subgraph":
         defaultAttrs.enterSubDigraph();
         stmt.id = g.addNode(stmt.id);
-        if (sg !== null) { g.parent(stmt.id, sg); }
+        if (sg != null) { g.parent(stmt.id, sg); }
         if (stmt.stmts) {
-          stmt.stmts.forEach(function(s) { handleStmt(s, stmt.id); });
+          stmt.stmts.forEach((s) { handleStmt(s, stmt.id); });
         }
         // If no children we remove the subgraph
-        if (g.children(stmt.id).length === 0) {
+        if (g.children(stmt.id).length == 0) {
           g.delNode(stmt.id);
         }
         defaultAttrs.exitSubDigraph();
@@ -178,7 +180,7 @@ function buildGraph(parseTree) {
         break;
       case "inlineAttr":
         if (stmt.attrs) {
-          mergeAttributes(attrs, sg === null ? g.graph() : g.node(sg));
+          mergeAttributes(attrs, sg == null ? g.graph() : g.node(sg));
         }
         break;
       default:
@@ -187,7 +189,7 @@ function buildGraph(parseTree) {
   }
 
   if (parseTree.stmts) {
-    parseTree.stmts.forEach(function(stmt) {
+    parseTree.stmts.forEach((stmt) {
       handleStmt(stmt, null);
     });
   }
@@ -198,6 +200,6 @@ function buildGraph(parseTree) {
 // Copies all key-value pairs from `src` to `dst`. This copy is destructive: if
 // a key appears in both `src` and `dst` the value from `src` will overwrite
 // the value in `dst`.
-function mergeAttributes(src, dst) {
-  Object.keys(src).forEach(function(k) { dst[k] = src[k]; });
+mergeAttributes(src, dst) {
+  Object.keys(src).forEach((k) { dst[k] = src[k]; });
 }

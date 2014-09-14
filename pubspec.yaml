@@ -1,0 +1,7 @@
+name: graphlib_dot
+description: A DOT language parser / writer for graphlib
+dependencies:
+  graphlib:
+    path: ../graphlib
+  unittest: any
+

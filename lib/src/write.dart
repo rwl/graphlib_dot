@@ -1,8 +1,10 @@
-var Writer = require('./Writer');
+part of graphlib.dot;
 
-module.exports = write;
+//var Writer = require('./Writer');
+//
+//module.exports = write;
 
-var UNESCAPED_ID_PATTERN = /^[a-zA-Z\200-\377_][a-zA-Z\200-\377_0-9]*$/;
+var UNESCAPED_ID_PATTERN = r"^[a-zA-Z\200-\377_][a-zA-Z\200-\377_0-9]*$";
 
 /*
  * Writes a string representation of the given graph in the DOT language.
@@ -11,7 +13,7 @@ var UNESCAPED_ID_PATTERN = /^[a-zA-Z\200-\377_][a-zA-Z\200-\377_0-9]*$/;
  *
  * @param {Graph|Digraph} g the graph to serialize
  */
-function write(g) {
+write(g) {
   var ec = g.isDirected() ? '->' : '--';
   var writer = new Writer();
 
@@ -21,14 +23,14 @@ function write(g) {
   var graphAttrs = g.graph();
 
   if(graphAttrs) {
-    Object.keys(graphAttrs).map(function(k) {
+    Object.keys(graphAttrs).map((k) {
       writer.writeLine(id(k) + '=' + id(graphAttrs[k]) + ';');
     });
   }
 
   writeSubgraph(g, null, writer);
 
-  g.edges().forEach(function(e) {
+  g.edges().forEach((e) {
     writeEdge(g, e, ec, writer);
   });
 
@@ -38,17 +40,17 @@ function write(g) {
   return writer.toString();
 }
 
-function writeSubgraph(g, u, writer) {
-  var children = g.children ? g.children(u) : (u === null ? g.nodes() : []);
-  children.forEach(function(v) {
-    if (!g.children || g.children(v).length === 0) {
+writeSubgraph(g, u, writer) {
+  var children = g.children ? g.children(u) : (u == null ? g.nodes() : []);
+  children.forEach((v) {
+    if (!g.children || g.children(v).length == 0) {
       writeNode(g, v, writer);
     } else {
       writer.writeLine('subgraph ' + id(v) + ' {');
       writer.indent();
 
       var attrs = g.node(v);
-      Object.keys(attrs).map(function(k) {
+      Object.keys(attrs).map((k) {
         writer.writeLine(id(k) + '=' + id(attrs[k]) + ';');
       });
 
@@ -59,20 +61,20 @@ function writeSubgraph(g, u, writer) {
   });
 }
 
-function id(obj) {
-  if (typeof obj === 'number' || obj.toString().match(UNESCAPED_ID_PATTERN)) {
+id(obj) {
+  if (typeof(obj) == 'number' || obj.toString().match(UNESCAPED_ID_PATTERN)) {
     return obj;
   }
 
-  return '"' + obj.toString().replace(/"/g, '\\"') + '"';
+  return '"' + obj.toString().replace('"'/*g*/, '\\"') + '"';
 }
 
-function writeNode(g, u, writer) {
+writeNode(g, u, writer) {
   var attrs = g.node(u);
   writer.write(id(u));
 
   if (attrs) {
-    var attrStrs = Object.keys(attrs).map(function(k) {
+    var attrStrs = Object.keys(attrs).map((k) {
       return id(k) + '=' + id(attrs[k]);
     });
 
@@ -84,7 +86,7 @@ function writeNode(g, u, writer) {
   writer.writeLine();
 }
 
-function writeEdge(g, e, ec, writer) {
+writeEdge(g, e, ec, writer) {
   var attrs = g.edge(e),
       incident = g.incidentNodes(e),
       u = incident[0],
@@ -92,7 +94,7 @@ function writeEdge(g, e, ec, writer) {
 
   writer.write(id(u) + ' ' + ec + ' ' + id(v));
   if (attrs) {
-    var attrStrs = Object.keys(attrs).map(function(k) {
+    var attrStrs = Object.keys(attrs).map((k) {
       return id(k) + '=' + id(attrs[k]);
     });
 
