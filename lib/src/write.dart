@@ -40,7 +40,7 @@ write(BaseGraph g) {
   return writer.toString();
 }
 
-writeSubgraph(BaseGraph g, u, writer) {
+writeSubgraph(BaseGraph g, u, Writer writer) {
   var children = g.isCompound() ? g.children(u) : (u == null ? g.nodes() : []);
   children.forEach((v) {
     if (!g.isCompound() || g.children(v).length == 0) {
@@ -61,24 +61,24 @@ writeSubgraph(BaseGraph g, u, writer) {
   });
 }
 
-String id(obj) {
+id(obj) {
   if (obj is num || UNESCAPED_ID_PATTERN.hasMatch(obj.toString())) {
-    return obj.toString();
+    return obj;//.toString();
   }
 
-  return '"' + obj.toString().replace('"'/*g*/, '\\"') + '"';
+  return '"' + obj.toString().replaceAll('"'/*g*/, '\\"') + '"';
 }
 
-writeNode(g, u, writer) {
+writeNode(BaseGraph g, u, Writer writer) {
   var attrs = g.node(u);
-  writer.write(id(u));
+  writer.write(id(u).toString());
 
   if (attrs != null) {
     var attrStrs = attrs.keys.map((k) {
       return id(k) + '=' + id(attrs[k]);
     });
 
-    if (attrStrs.length) {
+    if (attrStrs.length != 0) {
       writer.write(' [' + attrStrs.join(',') + ']');
     }
   }
@@ -86,16 +86,16 @@ writeNode(g, u, writer) {
   writer.writeLine();
 }
 
-writeEdge(g, e, ec, writer) {
+writeEdge(BaseGraph g, e, ec, Writer writer) {
   var attrs = g.edge(e),
       incident = g.incidentNodes(e),
       u = incident[0],
       v = incident[1];
 
-  writer.write(id(u) + ' ' + ec + ' ' + id(v));
+  writer.write('${id(u)} $ec ${id(v)}');
   if (attrs != null) {
     var attrStrs = attrs.keys.map((k) {
-      return id(k) + '=' + id(attrs[k]);
+      return '${id(k)}=${id(attrs[k])}';
     });
 
     if (attrStrs.length) {

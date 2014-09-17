@@ -1,6 +1,7 @@
 library graphlib.dot;
 
 import 'dart:math' as Math;
+import 'dart:math' show min;
 import 'package:graphlib/src/graphlib.dart';
 
 part 'dotify.dart';

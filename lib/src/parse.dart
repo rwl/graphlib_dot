@@ -3,7 +3,7 @@ part of graphlib.dot;
 //var DotDigraph = require("./DotDigraph"),
 //    DotGraph = require("./DotGraph");
 
-var dot_parser = new Parser();
+final dot_parser = new Parser();
 
 //module.exports = parse;
 //module.exports.parseMany = parseMany;
@@ -11,7 +11,11 @@ var dot_parser = new Parser();
 class SubDigraph {
   final _attrs = new Map<String, Map>();
   final SubDigraph parent;
-  SubDigraph(this.parent);
+  SubDigraph(this.parent) {
+    if (parent != null) {
+      _attrs.addAll(parent._attrs);
+    }
+  }
   Map operator [](String x) => _attrs[x];
   void operator []=(String x, Map v) { _attrs[x] = v; }
 }
@@ -26,7 +30,7 @@ class SubDigraph {
 class DefaultAttrs {
   SubDigraph _default = new SubDigraph(null);
 
-  get(String type, attrs) {
+  Map get(String type, Map attrs) {
     //if (typeof(this._default[type]) != "undefined") {
     if (this._default[type] != null) {
       var mergedAttrs = {};
@@ -40,7 +44,7 @@ class DefaultAttrs {
     }
   }
 
-  set(type, attrs) {
+  set(String type, Map attrs) {
     this._default[type] = this.get(type, attrs);
   }
 
@@ -67,29 +71,25 @@ class DefaultAttrs {
  *
  * @param {String} str the DOT string representation of one or more graphs
  */
-parse(str) {
+BaseGraph parse(str) {
   var parseTree = dot_parser.parse(str, "graphStmt");
   return buildGraph(parseTree);
 }
 
 /**
  * Parses one or more DOT graphs in the given string and returns them using
- * the same rules as described in [parse][] for individual graphs.
- *
- * [parse]: parse.js.html#parse
- *
- * @param {String} str the DOT string representation of one or more graphs
+ * the same rules as described in [parse] for individual graphs.
  */
-parseMany(str) {
+List<BaseGraph> parseMany(str) {
   var parseTree = dot_parser.parse(str);
 
   return parseTree.map((subtree) {
     return buildGraph(subtree);
-  });
+  }).toList();
 }
 
-buildGraph(parseTree) {
-  var g = parseTree.type == "graph" ? new DotGraph() : new DotDigraph();
+BaseGraph buildGraph(Map parseTree) {
+  final g = parseTree['type'] == "graph" ? new DotGraph() : new DotDigraph();
 
   final defaultAttrs = new DefaultAttrs();
 
@@ -102,42 +102,41 @@ buildGraph(parseTree) {
 
       // The "label" attribute is given special treatment: if it is not
       // defined we set it to the id of the node.
-      if (g.node(id).label == null) {
-        g.node(id).label = id;
+      if (g.node(id)['label'] == null) {
+        g.node(id)['label'] = id;
       }
 
       if (sg != null) {
         g.parent(id, sg);
       }
     }
-    if (attrs) {
+    if (attrs != null) {
       mergeAttributes(attrs, g.node(id));
     }
   }
 
-  createEdge(source, target, attrs) {
+  createEdge(source, target, Map attrs) {
     var edge = {};
     mergeAttributes(defaultAttrs.get("edge", attrs), edge);
-    var id = attrs.id ? attrs.id : null;
+    var id = attrs.containsKey('id') ? attrs['id'] : null;
     g.addEdge(id, source, target, edge);
   }
 
   collectNodeIds(stmt) {
     var ids = {},
-        stack = [],
-        curr;
+        stack = [];
     pushStack(e) { stack.add(e); }
 
     pushStack(stmt);
     while (stack.length != 0) {
-      curr = stack.removeLast();
-      switch (curr.type) {
-        case "node": ids[curr.id] = true; break;
+      Map curr = stack.removeLast();
+      switch (curr['type']) {
+        case "node": ids[curr['id']] = true; break;
         case "edge":
-          curr.elems.forEach(pushStack);
+          curr['elems'].forEach(pushStack);
           break;
         case "subgraph":
-          curr.stmts.forEach(pushStack);
+          curr['stmts'].forEach(pushStack);
           break;
       }
     }
@@ -183,27 +182,27 @@ buildGraph(parseTree) {
     }
   };*/
 
-  handleStmt(stmt, sg) {
-    var attrs = stmt.attrs;
-    switch (stmt.type) {
+  handleStmt(Map stmt, sg) {
+    var attrs = stmt['attrs'];
+    switch (stmt['type']) {
       case "node":
-        createNode(stmt.id, attrs, sg);
+        createNode(stmt['id'], attrs, sg);
         break;
       case "edge":
-        var prev,
+        var prev = null,
             curr;
-        stmt.elems.forEach((elem) {
+        stmt['elems'].forEach((Map elem) {
           handleStmt(elem, sg);
 
-          switch(elem.type) {
-            case "node": curr = [elem.id]; break;
+          switch(elem['type']) {
+            case "node": curr = [elem['id']]; break;
             case "subgraph": curr = collectNodeIds(elem); break;
             default:
               // We don't currently support subgraphs incident on an edge
-              throw new Exception("Unsupported type incident on edge: ${elem.type}");
+              throw new Exception("Unsupported type incident on edge: ${elem['type']}");
           }
 
-          if (prev) {
+          if (prev != null) {
             prev.forEach((p) {
               curr.forEach((c) {
                 createEdge(p, c, attrs);
@@ -215,32 +214,32 @@ buildGraph(parseTree) {
         break;
       case "subgraph":
         defaultAttrs.enterSubDigraph();
-        stmt.id = g.addNode(stmt.id);
-        if (sg != null) { g.parent(stmt.id, sg); }
-        if (stmt.stmts) {
-          stmt.stmts.forEach((s) { handleStmt(s, stmt.id); });
+        stmt['id'] = g.addNode(stmt['id']);
+        if (sg != null) { g.parent(stmt['id'], sg); }
+        if (stmt.containsKey('stmts') && stmt['stmts'].length > 0) {
+          stmt['stmts'].forEach((s) { handleStmt(s, stmt['id']); });
         }
         // If no children we remove the subgraph
-        if (g.children(stmt.id).length == 0) {
-          g.delNode(stmt.id);
+        if (g.children(stmt['id']).length == 0) {
+          g.delNode(stmt['id']);
         }
         defaultAttrs.exitSubDigraph();
         break;
       case "attr":
-        defaultAttrs.set(stmt.attrType, attrs);
+        defaultAttrs.set(stmt['attrType'], attrs);
         break;
       case "inlineAttr":
-        if (stmt.attrs) {
+        if (stmt.containsKey('attrs') && stmt['attrs'].length > 0) {
           mergeAttributes(attrs, sg == null ? g.graph() : g.node(sg));
         }
         break;
       default:
-        throw new Exception("Unsupported statement type: ${stmt.type}");
+        throw new Exception("Unsupported statement type: ${stmt['type']}");
     }
   }
 
-  if (parseTree.stmts) {
-    parseTree.stmts.forEach((stmt) {
+  if (parseTree.containsKey('stmts') && parseTree['stmts'].length > 0) {
+    parseTree['stmts'].forEach((stmt) {
       handleStmt(stmt, null);
     });
   }

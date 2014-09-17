@@ -61,15 +61,15 @@ class Parser {
   int rightmostFailuresPos = 0;
   List rightmostFailuresExpected = [];
 
-  var directed;
+  bool directed = false;
 
   String input;
 
-  /*
+  /**
    * Parses the input with a generated parser. If the parsing is successfull,
    * returns a value explicitly or implicitly specified by the grammar from
-   * which the parser was generated (see |PEG.buildParser|). If the parsing is
-   * unsuccessful, throws |PEG.parser.SyntaxError| describing the error.
+   * which the parser was generated. If the parsing is
+   * unsuccessful, throws [SyntaxError] describing the error.
    */
   parse(String input, [String startRule=null]) {
     this.input = input;
@@ -106,7 +106,7 @@ class Parser {
       "_": parse__
     };
 
-    directed = null;
+    directed = false;
 
     if (startRule != null) {
       if (parseFunctions[startRule] == null) {
@@ -149,7 +149,7 @@ class Parser {
      */
     if (result == null || pos != input.length) {
       var offset = Math.max(pos, rightmostFailuresPos);
-      var found = offset < input.length ? input[offset] : null;
+      var found = offset < input.length ? charAt(input, offset) : null;
       var errorPosition = computeErrorPosition();
 
       throw new SyntaxError(
@@ -160,6 +160,8 @@ class Parser {
         errorPosition.column
       );
     }
+
+    return result;
   }
 
   matchFailed(failure) {
@@ -334,7 +336,7 @@ class Parser {
     }
     if (result0 != null) {
       result0 = ((offset, type, id, stmts) {
-            return {type: type, id: id, stmts: stmts};
+            return {'type': type, 'id': id, 'stmts': stmts};
           })(pos0, result0[2], result0[4], result0[8]);
     }
     if (result0 == null) {
@@ -553,7 +555,7 @@ class Parser {
     }
     if (result0 != null) {
       result0 = ((offset, type, attrs) {
-            return { 'type': "attr", 'attrType': type, 'attrs': attrs != null ? attrs : {}};
+            return { 'type': "attr", 'attrType': type, 'attrs': attrs != null && attrs.length > 0 ? attrs : {}};
           })(pos0, result0[0], result0[2]);
     }
     if (result0 == null) {
@@ -662,7 +664,7 @@ class Parser {
       pos = pos1;
     }
     if (result0 != null) {
-      result0 = ((offset, id, attrs) { return {'type': "node", 'id': id, 'attrs': attrs != null ? attrs : {}}; })(pos0, result0[0], result0[2]);
+      result0 = ((offset, id, attrs) { return {'type': "node", 'id': id, 'attrs': attrs != null && attrs.length > 0 ? attrs : {}}; })(pos0, result0[0], result0[2]);
     }
     if (result0 == null) {
       pos = pos0;
@@ -724,7 +726,7 @@ class Parser {
             for (var i = 0; i < rhs.length; ++i) {
                 elems.add(rhs[i]);
             }
-            return { 'type': "edge", 'elems': elems, 'attrs': attrs != null ? attrs : {} };
+            return { 'type': "edge", 'elems': elems, 'attrs': attrs != null && attrs.length > 0 ? attrs : {} };
           })(pos0, result0[0], result0[2], result0[4]);
     }
     if (result0 == null) {
@@ -849,7 +851,7 @@ class Parser {
     }
     if (result0 != null) {
       result0 = ((offset, id, stmts) {
-            id = id[2] != null ? id[2] : [];
+            id = id.length > 2 && id[2].length != 0 ? id[2] : [null];
             return { 'type': "subgraph", 'id': id[0], 'stmts': stmts };
           })(pos0, result0[0], result0[3]);
     }
@@ -1141,7 +1143,7 @@ class Parser {
     pos0 = pos;
     pos1 = pos;
     pos2 = pos;
-    if (input.substring(pos, pos+2) == "--") {
+    if (substr(input, pos, 2) == "--") {
       result0 = "--";
       pos += 2;
     } else {
@@ -1164,7 +1166,7 @@ class Parser {
     }
     if (result0 == null) {
       pos2 = pos;
-      if (input.substring(pos, pos+2) == "->") {
+      if (substr(input, pos, 2) == "->") {
         result0 = "->";
         pos += 2;
       } else {
@@ -1469,7 +1471,7 @@ class Parser {
   parse_compassPt() {
     var result0;
 
-    if (input.substring(pos, pos+2) == "ne") {
+    if (substr(input, pos, 2) == "ne") {
       result0 = "ne";
       pos += 2;
     } else {
@@ -1479,7 +1481,7 @@ class Parser {
       }
     }
     if (result0 == null) {
-      if (input.substring(pos, pos+2) == "se") {
+      if (substr(input, pos, 2) == "se") {
         result0 = "se";
         pos += 2;
       } else {
@@ -1489,7 +1491,7 @@ class Parser {
         }
       }
       if (result0 == null) {
-        if (input.substring(pos, pos+2) == "sw") {
+        if (substr(input, pos, 2) == "sw") {
           result0 = "sw";
           pos += 2;
         } else {
@@ -1499,7 +1501,7 @@ class Parser {
           }
         }
         if (result0 == null) {
-          if (input.substring(pos, pos+2) == "nw") {
+          if (substr(input, pos, 2) == "nw") {
             result0 = "nw";
             pos += 2;
           } else {
@@ -1587,8 +1589,8 @@ class Parser {
     reportFailures++;
     pos0 = pos;
     pos1 = pos;
-    if (new RegExp(r"^[a-zA-Z\u0200-\u0377_]").hasMatch(input[pos])) {
-      result0 = input[pos];
+    if (new RegExp(r"^[a-zA-Z\u0200-\u0377_]").hasMatch(charAt(input, pos))) {
+      result0 = charAt(input, pos);
       pos++;
     } else {
       result0 = null;
@@ -1598,8 +1600,8 @@ class Parser {
     }
     if (result0 != null) {
       result1 = [];
-      if (new RegExp(r"^[a-zA-Z\u0200-\u0377_0-9]").hasMatch(input[pos])) {
-        result2 = input[pos];
+      if (new RegExp(r"^[a-zA-Z\u0200-\u0377_0-9]").hasMatch(charAt(input, pos))) {
+        result2 = charAt(input, pos);
         pos++;
       } else {
         result2 = null;
@@ -1609,8 +1611,8 @@ class Parser {
       }
       while (result2 != null) {
         result1.add(result2);
-        if (new RegExp(r"^[a-zA-Z\u0200-\u0377_0-9]").hasMatch(input[pos])) {
-          result2 = input[pos];
+        if (new RegExp(r"^[a-zA-Z\u0200-\u0377_0-9]").hasMatch(charAt(input, pos))) {
+          result2 = charAt(input, pos);
           pos++;
         } else {
           result2 = null;
@@ -1659,8 +1661,8 @@ class Parser {
           }
         }
         if (result1 != null) {
-          if (new RegExp(r"^[0-9]").hasMatch(input[pos])) {
-            result3 = input[pos];
+          if (new RegExp(r"^[0-9]").hasMatch(charAt(input, pos))) {
+            result3 = charAt(input, pos);
             pos++;
           } else {
             result3 = null;
@@ -1672,8 +1674,8 @@ class Parser {
             result2 = [];
             while (result3 != null) {
               result2.add(result3);
-              if (new RegExp(r"^[0-9]").hasMatch(input[pos])) {
-                result3 = input[pos];
+              if (new RegExp(r"^[0-9]").hasMatch(charAt(input, pos))) {
+                result3 = charAt(input, pos);
                 pos++;
               } else {
                 result3 = null;
@@ -1719,8 +1721,8 @@ class Parser {
         }
         result0 = result0 != null ? result0 : "";
         if (result0 != null) {
-          if (new RegExp(r"^[0-9]").hasMatch(input[pos])) {
-            result2 = input[pos];
+          if (new RegExp(r"^[0-9]").hasMatch(charAt(input, pos))) {
+            result2 = charAt(input, pos);
             pos++;
           } else {
             result2 = null;
@@ -1732,8 +1734,8 @@ class Parser {
             result1 = [];
             while (result2 != null) {
               result1.add(result2);
-              if (new RegExp(r"^[0-9]").hasMatch(input[pos])) {
-                result2 = input[pos];
+              if (new RegExp(r"^[0-9]").hasMatch(charAt(input, pos))) {
+                result2 = charAt(input, pos);
                 pos++;
               } else {
                 result2 = null;
@@ -1758,8 +1760,8 @@ class Parser {
             }
             if (result2 != null) {
               result3 = [];
-              if (new RegExp(r"^[0-9]").hasMatch(input[pos])) {
-                result4 = input[pos];
+              if (new RegExp(r"^[0-9]").hasMatch(charAt(input, pos))) {
+                result4 = charAt(input, pos);
                 pos++;
               } else {
                 result4 = null;
@@ -1769,8 +1771,8 @@ class Parser {
               }
               while (result4 != null) {
                 result3.add(result4);
-                if (new RegExp(r"^[0-9]").hasMatch(input[pos])) {
-                  result4 = input[pos];
+                if (new RegExp(r"^[0-9]").hasMatch(charAt(input, pos))) {
+                  result4 = charAt(input, pos);
                   pos++;
                 } else {
                   result4 = null;
@@ -1805,7 +1807,11 @@ class Parser {
           pos = pos1;
         }
         if (result0 != null) {
-          result0 = ((offset, sign, before, after) { return sign + before.join("") + (after[0] != null ? after[0] : "") + (after[1] != null ? after[1] : []).join(""); })(pos0, result0[0], result0[1], result0[2]);
+          result0 = ((offset, sign, before, after) {
+            return sign +
+                before.join("") + (after.length != 0 ? after[0] : "") +
+                (after.length > 1 ? after[1] : []).join("");
+          })(pos0, result0[0], result0[1], result0[2]);
         }
         if (result0 == null) {
           pos = pos0;
@@ -1825,7 +1831,7 @@ class Parser {
           if (result0 != null) {
             result1 = [];
             pos2 = pos;
-            if (input.substring(pos, pos+2) == "\\\"") {
+            if (substr(input, pos, 2) == "\\\"") {
               result2 = "\\\"";
               pos += 2;
             } else {
@@ -1853,8 +1859,8 @@ class Parser {
                 }
               }
               if (result2 != null) {
-                if (new RegExp(r'^[^"]').hasMatch(input[pos])) {
-                  result3 = input[pos];
+                if (new RegExp(r'^[^"]').hasMatch(charAt(input, pos))) {
+                  result3 = charAt(input, pos);
                   pos++;
                 } else {
                   result3 = null;
@@ -1879,8 +1885,8 @@ class Parser {
                 pos = pos2;
               }
               if (result2 == null) {
-                if (new RegExp(r'^[^"]').hasMatch(input[pos])) {
-                  result2 = input[pos];
+                if (new RegExp(r'^[^"]').hasMatch(charAt(input, pos))) {
+                  result2 = charAt(input, pos);
                   pos++;
                 } else {
                   result2 = null;
@@ -1893,7 +1899,7 @@ class Parser {
             while (result2 != null) {
               result1.add(result2);
               pos2 = pos;
-              if (input.substring(pos, pos+2) == "\\\"") {
+              if (substr(input, pos, 2) == "\\\"") {
                 result2 = "\\\"";
                 pos += 2;
               } else {
@@ -1921,8 +1927,8 @@ class Parser {
                   }
                 }
                 if (result2 != null) {
-                  if (new RegExp(r'^[^"]').hasMatch(input[pos])) {
-                    result3 = input[pos];
+                  if (new RegExp(r'^[^"]').hasMatch(charAt(input, pos))) {
+                    result3 = charAt(input, pos);
                     pos++;
                   } else {
                     result3 = null;
@@ -1947,8 +1953,8 @@ class Parser {
                   pos = pos2;
                 }
                 if (result2 == null) {
-                  if (new RegExp(r'^[^"]').hasMatch(input[pos])) {
-                    result2 = input[pos];
+                  if (new RegExp(r'^[^"]').hasMatch(charAt(input, pos))) {
+                    result2 = charAt(input, pos);
                     pos++;
                   } else {
                     result2 = null;
@@ -2004,8 +2010,8 @@ class Parser {
     var pos0;
 
     pos0 = pos;
-    if (input.substring(pos, pos+4).toLowerCase() == "node") {
-      result0 = input.substring(pos, pos+4);
+    if (substr(input, pos, 4).toLowerCase() == "node") {
+      result0 = substr(input, pos, 4);
       pos += 4;
     } else {
       result0 = null;
@@ -2027,8 +2033,8 @@ class Parser {
     var pos0;
 
     pos0 = pos;
-    if (input.substring(pos, pos+4).toLowerCase() == "edge") {
-      result0 = input.substring(pos, pos+4);
+    if (substr(input, pos, 4).toLowerCase() == "edge") {
+      result0 = substr(input, pos, 4);
       pos += 4;
     } else {
       result0 = null;
@@ -2050,8 +2056,8 @@ class Parser {
     var pos0;
 
     pos0 = pos;
-    if (input.substring(pos, pos+5).toLowerCase() == "graph") {
-      result0 = input.substring(pos, pos+5);
+    if (substr(input, pos, 5).toLowerCase() == "graph") {
+      result0 = substr(input, pos, 5);
       pos += 5;
     } else {
       result0 = null;
@@ -2073,8 +2079,8 @@ class Parser {
     var pos0;
 
     pos0 = pos;
-    if (input.substring(pos, pos+7).toLowerCase() == "digraph") {
-      result0 = input.substring(pos, pos+7);
+    if (substr(input, pos, 7).toLowerCase() == "digraph") {
+      result0 = substr(input, pos, 7);
       pos += 7;
     } else {
       result0 = null;
@@ -2096,8 +2102,8 @@ class Parser {
     var pos0;
 
     pos0 = pos;
-    if (input.substring(pos, pos+8).toLowerCase() == "subgraph") {
-      result0 = input.substring(pos, pos+8);
+    if (substr(input, pos, 8).toLowerCase() == "subgraph") {
+      result0 = substr(input, pos, 8);
       pos += 8;
     } else {
       result0 = null;
@@ -2119,8 +2125,8 @@ class Parser {
     var pos0;
 
     pos0 = pos;
-    if (input.substring(pos, pos+6).toLowerCase() == "strict") {
-      result0 = input.substring(pos, pos+6);
+    if (substr(input, pos, 6).toLowerCase() == "strict") {
+      result0 = substr(input, pos, 6);
       pos += 6;
     } else {
       result0 = null;
@@ -2162,8 +2168,8 @@ class Parser {
     var result0, result1;
 
     reportFailures++;
-    if (new RegExp(r"^[ \t\r\n]").hasMatch(input[pos])) {
-      result1 = input[pos];
+    if (new RegExp(r"^[ \t\r\n]").hasMatch(charAt(input, pos))) {
+      result1 = charAt(input, pos);
       pos++;
     } else {
       result1 = null;
@@ -2175,8 +2181,8 @@ class Parser {
       result0 = [];
       while (result1 != null) {
         result0.add(result1);
-        if (new RegExp(r"^[ \t\r\n]").hasMatch(input[pos])) {
-          result1 = input[pos];
+        if (new RegExp(r"^[ \t\r\n]").hasMatch(charAt(input, pos))) {
+          result1 = charAt(input, pos);
           pos++;
         } else {
           result1 = null;
@@ -2201,7 +2207,7 @@ class Parser {
 
     reportFailures++;
     pos0 = pos;
-    if (input.substring(pos, pos+2) == "//") {
+    if (substr(input, pos, 2) == "//") {
       result0 = "//";
       pos += 2;
     } else {
@@ -2212,8 +2218,8 @@ class Parser {
     }
     if (result0 != null) {
       result1 = [];
-      if (new RegExp(r"^[^\n]").hasMatch(input[pos])) {
-        result2 = input[pos];
+      if (new RegExp(r"^[^\n]").hasMatch(charAt(input, pos))) {
+        result2 = charAt(input, pos);
         pos++;
       } else {
         result2 = null;
@@ -2223,8 +2229,8 @@ class Parser {
       }
       while (result2 != null) {
         result1.add(result2);
-        if (new RegExp(r"^[^\n]").hasMatch(input[pos])) {
-          result2 = input[pos];
+        if (new RegExp(r"^[^\n]").hasMatch(charAt(input, pos))) {
+          result2 = charAt(input, pos);
           pos++;
         } else {
           result2 = null;
@@ -2245,7 +2251,7 @@ class Parser {
     }
     if (result0 == null) {
       pos0 = pos;
-      if (input.substring(pos, pos+2) == "/*") {
+      if (substr(input, pos, 2) == "/*") {
         result0 = "/*";
         pos += 2;
       } else {
@@ -2259,7 +2265,7 @@ class Parser {
         pos1 = pos;
         pos2 = pos;
         reportFailures++;
-        if (input.substring(pos, pos+2) == "*/") {
+        if (substr(input, pos, 2) == "*/") {
           result2 = "*/";
           pos += 2;
         } else {
@@ -2277,7 +2283,7 @@ class Parser {
         }
         if (result2 != null) {
           if (input.length > pos) {
-            result3 = input[pos];
+            result3 = charAt(input, pos);
             pos++;
           } else {
             result3 = null;
@@ -2300,7 +2306,7 @@ class Parser {
           pos1 = pos;
           pos2 = pos;
           reportFailures++;
-          if (input.substring(pos, pos+2) == "*/") {
+          if (substr(input, pos, 2) == "*/") {
             result2 = "*/";
             pos += 2;
           } else {
@@ -2318,7 +2324,7 @@ class Parser {
           }
           if (result2 != null) {
             if (input.length > pos) {
-              result3 = input[pos];
+              result3 = charAt(input, pos);
               pos++;
             } else {
               result3 = null;
@@ -2338,7 +2344,7 @@ class Parser {
           }
         }
         if (result1 != null) {
-          if (input.substring(pos, pos+2) == "*/") {
+          if (substr(input, pos, 2) == "*/") {
             result2 = "*/";
             pos += 2;
           } else {
@@ -2407,7 +2413,7 @@ class Parser {
     var seenCR = false;
 
     for (var i = 0; i < Math.max(pos, rightmostFailuresPos); i++) {
-      var ch = input[i];
+      var ch = charAt(input, i);
       if (ch == "\n") {
         if (!seenCR) { line++; }
         column = 1;
@@ -2425,12 +2431,12 @@ class Parser {
     return { line: line, column: column };
   }
 
-  rightBiasedMerge(lhs, rhs) {
+  rightBiasedMerge(Map lhs, Map rhs) {
       var result = {};
-      for (var k in lhs) {
+      for (var k in lhs.keys) {
           result[k] = lhs[k];
       }
-      for (var k in rhs) {
+      for (var k in rhs.keys) {
           result[k] = rhs[k];
       }
       return result;
@@ -2488,3 +2494,7 @@ class SyntaxError {
   final int line;
   final int column;
 }
+
+String substr(String s, int i, int l) => s.substring(i, Math.min(i+l, s.length));
+
+String charAt(String s, int i) => (i < s.length) ? s[i] : "";
