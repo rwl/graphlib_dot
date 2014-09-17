@@ -3,11 +3,11 @@ part of graphlib.dot;
 //var CDigraph = require("graphlib").CDigraph,
 //    dotify = require("./dotify");
 
-class DotDigraph extends CDigraph with Dotify {
+class DotDigraph extends CDigraph {//with Dotify {
 
-  DotDigraph() : super();
-
-//module.exports = DotDigraph;
+  DotDigraph() : super() {
+    this.graph({});
+  }
 
   fromDigraph(src) {
     var g = new DotDigraph(),
@@ -32,5 +32,21 @@ class DotDigraph extends CDigraph with Dotify {
       }
     });
     return g;
+  }
+
+  graph([Map value=null]) => super.graph(value);
+
+  node(u, [Map value=null]) => super.node(u, value);
+
+  addNode([u, Map value=null]) {
+    if (value == null) value = {};
+    return super.addNode(u, value);
+  }
+
+  edge(e, [Map value=null]) => super.edge(e, value);
+
+  addEdge(e, u, v, [Map value=null]) {
+    if (value == null) value = {};
+    return super.addEdge(e, u, v, value);
   }
 }

@@ -4,7 +4,7 @@ part of graphlib.dot;
 //
 //module.exports = write;
 
-var UNESCAPED_ID_PATTERN = r"^[a-zA-Z\200-\377_][a-zA-Z\200-\377_0-9]*$";
+final UNESCAPED_ID_PATTERN = new RegExp(r"^[a-zA-Z\200-\377_][a-zA-Z\200-\377_0-9]*$");
 
 /*
  * Writes a string representation of the given graph in the DOT language.
@@ -13,17 +13,17 @@ var UNESCAPED_ID_PATTERN = r"^[a-zA-Z\200-\377_][a-zA-Z\200-\377_0-9]*$";
  *
  * @param {Graph|Digraph} g the graph to serialize
  */
-write(g) {
+write(BaseGraph g) {
   var ec = g.isDirected() ? '->' : '--';
   var writer = new Writer();
 
   writer.writeLine((g.isDirected() ? 'digraph' : 'graph') + ' {');
   writer.indent();
 
-  var graphAttrs = g.graph();
+  Map graphAttrs = g.graph();
 
-  if(graphAttrs) {
-    Object.keys(graphAttrs).map((k) {
+  if (graphAttrs != null) {
+    graphAttrs.keys.map((k) {
       writer.writeLine(id(k) + '=' + id(graphAttrs[k]) + ';');
     });
   }
@@ -40,17 +40,17 @@ write(g) {
   return writer.toString();
 }
 
-writeSubgraph(g, u, writer) {
-  var children = g.children ? g.children(u) : (u == null ? g.nodes() : []);
+writeSubgraph(BaseGraph g, u, writer) {
+  var children = g.isCompound() ? g.children(u) : (u == null ? g.nodes() : []);
   children.forEach((v) {
-    if (!g.children || g.children(v).length == 0) {
+    if (!g.isCompound() || g.children(v).length == 0) {
       writeNode(g, v, writer);
     } else {
       writer.writeLine('subgraph ' + id(v) + ' {');
       writer.indent();
 
-      var attrs = g.node(v);
-      Object.keys(attrs).map((k) {
+      Map attrs = g.node(v);
+      attrs.keys.map((k) {
         writer.writeLine(id(k) + '=' + id(attrs[k]) + ';');
       });
 
@@ -61,9 +61,9 @@ writeSubgraph(g, u, writer) {
   });
 }
 
-id(obj) {
-  if (typeof(obj) == 'number' || obj.toString().match(UNESCAPED_ID_PATTERN)) {
-    return obj;
+String id(obj) {
+  if (obj is num || UNESCAPED_ID_PATTERN.hasMatch(obj.toString())) {
+    return obj.toString();
   }
 
   return '"' + obj.toString().replace('"'/*g*/, '\\"') + '"';
@@ -73,8 +73,8 @@ writeNode(g, u, writer) {
   var attrs = g.node(u);
   writer.write(id(u));
 
-  if (attrs) {
-    var attrStrs = Object.keys(attrs).map((k) {
+  if (attrs != null) {
+    var attrStrs = attrs.keys.map((k) {
       return id(k) + '=' + id(attrs[k]);
     });
 
@@ -93,8 +93,8 @@ writeEdge(g, e, ec, writer) {
       v = incident[1];
 
   writer.write(id(u) + ' ' + ec + ' ' + id(v));
-  if (attrs) {
-    var attrStrs = Object.keys(attrs).map((k) {
+  if (attrs != null) {
+    var attrStrs = attrs.keys.map((k) {
       return id(k) + '=' + id(attrs[k]);
     });
 

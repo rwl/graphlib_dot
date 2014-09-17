@@ -1,8 +1,7 @@
-//var DotGraph = require("..").DotGraph,
-//    Graph = require("graphlib").Graph;
+part of graphlib.dot.test;
 
 dotGraphTest() {
   group("DotGraph", () {
-    abstractDotifyTest("DotGraph", DotGraph, "Graph", Graph);
+    abstractDotifyTest("DotGraph", () => new dot.DotGraph(), "Graph", () => new Graph());
   });
 }

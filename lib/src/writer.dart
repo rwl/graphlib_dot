@@ -7,24 +7,24 @@ part of graphlib.dot;
 var INDENT = "    ";
 
 class Writer {
-  var _indent = "";
-  var _content = "";
-  var _shouldIndent = true;
+  String _indent = "";
+  String _content = "";
+  bool _shouldIndent = true;
 
   indent() {
     this._indent += INDENT;
   }
 
   unindent() {
-    this._indent = this._indent.slice(INDENT.length);
+    this._indent = this._indent.substring(INDENT.length);
   }
 
-  writeLine([line=""]) {
+  writeLine([String line=""]) {
     this.write(line + "\n");
     this._shouldIndent = true;
   }
 
-  write(str) {
+  write(String str) {
     if (this._shouldIndent) {
       this._shouldIndent = false;
       this._content += this._indent;

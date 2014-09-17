@@ -8,7 +8,56 @@ var dot_parser = new Parser();
 //module.exports = parse;
 //module.exports.parseMany = parseMany;
 
-/*
+class SubDigraph {
+  final _attrs = new Map<String, Map>();
+  final SubDigraph parent;
+  SubDigraph(this.parent);
+  Map operator [](String x) => _attrs[x];
+  void operator []=(String x, Map v) { _attrs[x] = v; }
+}
+
+/**
+ * We use a chain of prototypes to maintain properties as we descend into
+ * subgraphs. This allows us to simply get the value for a property and have
+ * the VM do appropriate resolution. When we leave a subgraph we simply set
+ * the current context to the prototype of the current defaults object.
+ * Alternatively, this could have been written using a stack.
+ */
+class DefaultAttrs {
+  SubDigraph _default = new SubDigraph(null);
+
+  get(String type, attrs) {
+    //if (typeof(this._default[type]) != "undefined") {
+    if (this._default[type] != null) {
+      var mergedAttrs = {};
+      // clone default attributes so they won't get overwritten in the next step
+      mergeAttributes(this._default[type], mergedAttrs);
+      // merge statement attributes with default attributes, precedence give to stmt attributes
+      mergeAttributes(attrs, mergedAttrs);
+      return mergedAttrs;
+    } else {
+      return attrs;
+    }
+  }
+
+  set(type, attrs) {
+    this._default[type] = this.get(type, attrs);
+  }
+
+  enterSubDigraph() {
+//    SubDigraph() {}
+//    SubDigraph.prototype = this._default;
+    var subgraph = new SubDigraph(this._default);
+    this._default = subgraph;
+  }
+
+  exitSubDigraph() {
+    //this._default = Object.getPrototypeOf(this._default);
+    this._default = this._default.parent;
+  }
+}
+
+/**
  * Parses a single DOT graph from the given string and returns it as one of:
  *
  * * `Digraph` if the input graph is a `digraph`.
@@ -23,7 +72,7 @@ parse(str) {
   return buildGraph(parseTree);
 }
 
-/*
+/**
  * Parses one or more DOT graphs in the given string and returns them using
  * the same rules as described in [parse][] for individual graphs.
  *
@@ -41,6 +90,8 @@ parseMany(str) {
 
 buildGraph(parseTree) {
   var g = parseTree.type == "graph" ? new DotGraph() : new DotDigraph();
+
+  final defaultAttrs = new DefaultAttrs();
 
   createNode(id, attrs, sg) {
     if (!(g.hasNode(id))) {
@@ -75,11 +126,11 @@ buildGraph(parseTree) {
     var ids = {},
         stack = [],
         curr;
-    pushStack(e) { stack.push(e); }
+    pushStack(e) { stack.add(e); }
 
     pushStack(stmt);
     while (stack.length != 0) {
-      curr = stack.pop();
+      curr = stack.removeLast();
       switch (curr.type) {
         case "node": ids[curr.id] = true; break;
         case "edge":
@@ -90,7 +141,7 @@ buildGraph(parseTree) {
           break;
       }
     }
-    return Object.keys(ids);
+    return ids.keys;
   }
 
   /*
@@ -100,7 +151,7 @@ buildGraph(parseTree) {
    * the current context to the prototype of the current defaults object.
    * Alternatively, this could have been written using a stack.
    */
-  var defaultAttrs = {
+  /*var defaultAttrs = {
     _default: {},
 
     'get': get(type, attrs) {
@@ -130,7 +181,7 @@ buildGraph(parseTree) {
     'exitSubDigraph': () {
       this._default = Object.getPrototypeOf(this._default);
     }
-  };
+  };*/
 
   handleStmt(stmt, sg) {
     var attrs = stmt.attrs;
@@ -149,7 +200,7 @@ buildGraph(parseTree) {
             case "subgraph": curr = collectNodeIds(elem); break;
             default:
               // We don't currently support subgraphs incident on an edge
-              throw new Error("Unsupported type incident on edge: " + elem.type);
+              throw new Exception("Unsupported type incident on edge: ${elem.type}");
           }
 
           if (prev) {
@@ -184,7 +235,7 @@ buildGraph(parseTree) {
         }
         break;
       default:
-        throw new Error("Unsupported statement type: " + stmt.type);
+        throw new Exception("Unsupported statement type: ${stmt.type}");
     }
   }
 
@@ -200,6 +251,7 @@ buildGraph(parseTree) {
 // Copies all key-value pairs from `src` to `dst`. This copy is destructive: if
 // a key appears in both `src` and `dst` the value from `src` will overwrite
 // the value in `dst`.
-mergeAttributes(src, dst) {
-  Object.keys(src).forEach((k) { dst[k] = src[k]; });
+mergeAttributes(Map src, Map dst) {
+  //Object.keys(src).forEach((k) { dst[k] = src[k]; });
+  src.keys.forEach((k) { dst[k] = src[k]; });
 }

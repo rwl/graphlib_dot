@@ -40,7 +40,7 @@ padLeft(input, padding, length) {
 }
 
 escape(ch) {
-  var charCode = ch.charCodeAt(0);
+  var charCode = ch.codeUnitAt(0);
   var escapeChar;
   var length;
 
@@ -63,7 +63,7 @@ class Parser {
 
   var directed;
 
-  var input;
+  String input;
 
   /*
    * Parses the input with a generated parser. If the parsing is successfull,
@@ -71,7 +71,7 @@ class Parser {
    * which the parser was generated (see |PEG.buildParser|). If the parsing is
    * unsuccessful, throws |PEG.parser.SyntaxError| describing the error.
    */
-  parse(input, [String startRule=null]) {
+  parse(String input, [String startRule=null]) {
     this.input = input;
 
     var parseFunctions = {
@@ -149,7 +149,7 @@ class Parser {
      */
     if (result == null || pos != input.length) {
       var offset = Math.max(pos, rightmostFailuresPos);
-      var found = offset < input.length ? input.charAt(offset) : null;
+      var found = offset < input.length ? input[offset] : null;
       var errorPosition = computeErrorPosition();
 
       throw new SyntaxError(
@@ -239,7 +239,7 @@ class Parser {
                 result6 = parse__();
               }
               if (result5 != null) {
-                if (input.charCodeAt(pos) == 123) {
+                if (input.codeUnitAt(pos) == 123) {
                   result6 = "{";
                   pos++;
                 } else {
@@ -266,7 +266,7 @@ class Parser {
                         result10 = parse__();
                       }
                       if (result9 != null) {
-                        if (input.charCodeAt(pos) == 125) {
+                        if (input.codeUnitAt(pos) == 125) {
                           result10 = "}";
                           pos++;
                         } else {
@@ -358,7 +358,7 @@ class Parser {
         result2 = parse__();
       }
       if (result1 != null) {
-        if (input.charCodeAt(pos) == 59) {
+        if (input.codeUnitAt(pos) == 59) {
           result2 = ";";
           pos++;
         } else {
@@ -387,7 +387,7 @@ class Parser {
                 result7 = parse__();
               }
               if (result6 != null) {
-                if (input.charCodeAt(pos) == 59) {
+                if (input.codeUnitAt(pos) == 59) {
                   result7 = ";";
                   pos++;
                 } else {
@@ -434,7 +434,7 @@ class Parser {
                   result7 = parse__();
                 }
                 if (result6 != null) {
-                  if (input.charCodeAt(pos) == 59) {
+                  if (input.codeUnitAt(pos) == 59) {
                     result7 = ";";
                     pos++;
                   } else {
@@ -577,7 +577,7 @@ class Parser {
         result2 = parse__();
       }
       if (result1 != null) {
-        if (input.charCodeAt(pos) == 61) {
+        if (input.codeUnitAt(pos) == 61) {
           result2 = "=";
           pos++;
         } else {
@@ -785,7 +785,7 @@ class Parser {
     }
     result0 = result0 != null ? result0 : "";
     if (result0 != null) {
-      if (input.charCodeAt(pos) == 123) {
+      if (input.codeUnitAt(pos) == 123) {
         result1 = "{";
         pos++;
       } else {
@@ -812,7 +812,7 @@ class Parser {
               result5 = parse__();
             }
             if (result4 != null) {
-              if (input.charCodeAt(pos) == 125) {
+              if (input.codeUnitAt(pos) == 125) {
                 result5 = "}";
                 pos++;
               } else {
@@ -940,7 +940,7 @@ class Parser {
 
     pos0 = pos;
     pos1 = pos;
-    if (input.charCodeAt(pos) == 91) {
+    if (input.codeUnitAt(pos) == 91) {
       result0 = "[";
       pos++;
     } else {
@@ -967,7 +967,7 @@ class Parser {
             result4 = parse__();
           }
           if (result3 != null) {
-            if (input.charCodeAt(pos) == 93) {
+            if (input.codeUnitAt(pos) == 93) {
               result4 = "]";
               pos++;
             } else {
@@ -1024,7 +1024,7 @@ class Parser {
         result3 = parse__();
       }
       if (result2 != null) {
-        if (input.charCodeAt(pos) == 44) {
+        if (input.codeUnitAt(pos) == 44) {
           result3 = ",";
           pos++;
         } else {
@@ -1071,7 +1071,7 @@ class Parser {
           result3 = parse__();
         }
         if (result2 != null) {
-          if (input.charCodeAt(pos) == 44) {
+          if (input.codeUnitAt(pos) == 44) {
             result3 = ",";
             pos++;
           } else {
@@ -1141,7 +1141,7 @@ class Parser {
     pos0 = pos;
     pos1 = pos;
     pos2 = pos;
-    if (input.substr(pos, 2) == "--") {
+    if (input.substring(pos, pos+2) == "--") {
       result0 = "--";
       pos += 2;
     } else {
@@ -1164,7 +1164,7 @@ class Parser {
     }
     if (result0 == null) {
       pos2 = pos;
-      if (input.substr(pos, 2) == "->") {
+      if (input.substring(pos, pos+2) == "->") {
         result0 = "->";
         pos += 2;
       } else {
@@ -1258,7 +1258,7 @@ class Parser {
         result2 = parse__();
       }
       if (result1 != null) {
-        if (input.charCodeAt(pos) == 61) {
+        if (input.codeUnitAt(pos) == 61) {
           result2 = "=";
           pos++;
         } else {
@@ -1381,7 +1381,7 @@ class Parser {
     var pos0, pos1;
 
     pos0 = pos;
-    if (input.charCodeAt(pos) == 58) {
+    if (input.codeUnitAt(pos) == 58) {
       result0 = ":";
       pos++;
     } else {
@@ -1408,7 +1408,7 @@ class Parser {
           }
           if (result3 != null) {
             pos1 = pos;
-            if (input.charCodeAt(pos) == 58) {
+            if (input.codeUnitAt(pos) == 58) {
               result4 = ":";
               pos++;
             } else {
@@ -1469,7 +1469,7 @@ class Parser {
   parse_compassPt() {
     var result0;
 
-    if (input.substr(pos, 2) == "ne") {
+    if (input.substring(pos, pos+2) == "ne") {
       result0 = "ne";
       pos += 2;
     } else {
@@ -1479,7 +1479,7 @@ class Parser {
       }
     }
     if (result0 == null) {
-      if (input.substr(pos, 2) == "se") {
+      if (input.substring(pos, pos+2) == "se") {
         result0 = "se";
         pos += 2;
       } else {
@@ -1489,7 +1489,7 @@ class Parser {
         }
       }
       if (result0 == null) {
-        if (input.substr(pos, 2) == "sw") {
+        if (input.substring(pos, pos+2) == "sw") {
           result0 = "sw";
           pos += 2;
         } else {
@@ -1499,7 +1499,7 @@ class Parser {
           }
         }
         if (result0 == null) {
-          if (input.substr(pos, 2) == "nw") {
+          if (input.substring(pos, pos+2) == "nw") {
             result0 = "nw";
             pos += 2;
           } else {
@@ -1509,7 +1509,7 @@ class Parser {
             }
           }
           if (result0 == null) {
-            if (input.charCodeAt(pos) == 110) {
+            if (input.codeUnitAt(pos) == 110) {
               result0 = "n";
               pos++;
             } else {
@@ -1519,7 +1519,7 @@ class Parser {
               }
             }
             if (result0 == null) {
-              if (input.charCodeAt(pos) == 101) {
+              if (input.codeUnitAt(pos) == 101) {
                 result0 = "e";
                 pos++;
               } else {
@@ -1529,7 +1529,7 @@ class Parser {
                 }
               }
               if (result0 == null) {
-                if (input.charCodeAt(pos) == 115) {
+                if (input.codeUnitAt(pos) == 115) {
                   result0 = "s";
                   pos++;
                 } else {
@@ -1539,7 +1539,7 @@ class Parser {
                   }
                 }
                 if (result0 == null) {
-                  if (input.charCodeAt(pos) == 119) {
+                  if (input.codeUnitAt(pos) == 119) {
                     result0 = "w";
                     pos++;
                   } else {
@@ -1549,7 +1549,7 @@ class Parser {
                     }
                   }
                   if (result0 == null) {
-                    if (input.charCodeAt(pos) == 99) {
+                    if (input.codeUnitAt(pos) == 99) {
                       result0 = "c";
                       pos++;
                     } else {
@@ -1559,7 +1559,7 @@ class Parser {
                       }
                     }
                     if (result0 == null) {
-                      if (input.charCodeAt(pos) == 95) {
+                      if (input.codeUnitAt(pos) == 95) {
                         result0 = "_";
                         pos++;
                       } else {
@@ -1587,8 +1587,8 @@ class Parser {
     reportFailures++;
     pos0 = pos;
     pos1 = pos;
-    if (r"^[a-zA-Z\u0200-\u0377_]".test(input.charAt(pos))) {
-      result0 = input.charAt(pos);
+    if (new RegExp(r"^[a-zA-Z\u0200-\u0377_]").hasMatch(input[pos])) {
+      result0 = input[pos];
       pos++;
     } else {
       result0 = null;
@@ -1598,8 +1598,8 @@ class Parser {
     }
     if (result0 != null) {
       result1 = [];
-      if (r"^[a-zA-Z\u0200-\u0377_0-9]".test(input.charAt(pos))) {
-        result2 = input.charAt(pos);
+      if (new RegExp(r"^[a-zA-Z\u0200-\u0377_0-9]").hasMatch(input[pos])) {
+        result2 = input[pos];
         pos++;
       } else {
         result2 = null;
@@ -1609,8 +1609,8 @@ class Parser {
       }
       while (result2 != null) {
         result1.add(result2);
-        if (r"^[a-zA-Z\u0200-\u0377_0-9]".test(input.charAt(pos))) {
-          result2 = input.charAt(pos);
+        if (new RegExp(r"^[a-zA-Z\u0200-\u0377_0-9]").hasMatch(input[pos])) {
+          result2 = input[pos];
           pos++;
         } else {
           result2 = null;
@@ -1638,7 +1638,7 @@ class Parser {
     if (result0 == null) {
       pos0 = pos;
       pos1 = pos;
-      if (input.charCodeAt(pos) == 45) {
+      if (input.codeUnitAt(pos) == 45) {
         result0 = "-";
         pos++;
       } else {
@@ -1649,7 +1649,7 @@ class Parser {
       }
       result0 = result0 != null ? result0 : "";
       if (result0 != null) {
-        if (input.charCodeAt(pos) == 46) {
+        if (input.codeUnitAt(pos) == 46) {
           result1 = ".";
           pos++;
         } else {
@@ -1659,8 +1659,8 @@ class Parser {
           }
         }
         if (result1 != null) {
-          if (r"^[0-9]".test(input.charAt(pos))) {
-            result3 = input.charAt(pos);
+          if (new RegExp(r"^[0-9]").hasMatch(input[pos])) {
+            result3 = input[pos];
             pos++;
           } else {
             result3 = null;
@@ -1672,8 +1672,8 @@ class Parser {
             result2 = [];
             while (result3 != null) {
               result2.add(result3);
-              if (r"^[0-9]".test(input.charAt(pos))) {
-                result3 = input.charAt(pos);
+              if (new RegExp(r"^[0-9]").hasMatch(input[pos])) {
+                result3 = input[pos];
                 pos++;
               } else {
                 result3 = null;
@@ -1708,7 +1708,7 @@ class Parser {
       if (result0 == null) {
         pos0 = pos;
         pos1 = pos;
-        if (input.charCodeAt(pos) == 45) {
+        if (input.codeUnitAt(pos) == 45) {
           result0 = "-";
           pos++;
         } else {
@@ -1719,8 +1719,8 @@ class Parser {
         }
         result0 = result0 != null ? result0 : "";
         if (result0 != null) {
-          if (r"^[0-9]".test(input.charAt(pos))) {
-            result2 = input.charAt(pos);
+          if (new RegExp(r"^[0-9]").hasMatch(input[pos])) {
+            result2 = input[pos];
             pos++;
           } else {
             result2 = null;
@@ -1732,8 +1732,8 @@ class Parser {
             result1 = [];
             while (result2 != null) {
               result1.add(result2);
-              if (r"^[0-9]".test(input.charAt(pos))) {
-                result2 = input.charAt(pos);
+              if (new RegExp(r"^[0-9]").hasMatch(input[pos])) {
+                result2 = input[pos];
                 pos++;
               } else {
                 result2 = null;
@@ -1747,7 +1747,7 @@ class Parser {
           }
           if (result1 != null) {
             pos2 = pos;
-            if (input.charCodeAt(pos) == 46) {
+            if (input.codeUnitAt(pos) == 46) {
               result2 = ".";
               pos++;
             } else {
@@ -1758,8 +1758,8 @@ class Parser {
             }
             if (result2 != null) {
               result3 = [];
-              if (r"^[0-9]".test(input.charAt(pos))) {
-                result4 = input.charAt(pos);
+              if (new RegExp(r"^[0-9]").hasMatch(input[pos])) {
+                result4 = input[pos];
                 pos++;
               } else {
                 result4 = null;
@@ -1769,8 +1769,8 @@ class Parser {
               }
               while (result4 != null) {
                 result3.add(result4);
-                if (r"^[0-9]".test(input.charAt(pos))) {
-                  result4 = input.charAt(pos);
+                if (new RegExp(r"^[0-9]").hasMatch(input[pos])) {
+                  result4 = input[pos];
                   pos++;
                 } else {
                   result4 = null;
@@ -1813,7 +1813,7 @@ class Parser {
         if (result0 == null) {
           pos0 = pos;
           pos1 = pos;
-          if (input.charCodeAt(pos) == 34) {
+          if (input.codeUnitAt(pos) == 34) {
             result0 = "\"";
             pos++;
           } else {
@@ -1825,7 +1825,7 @@ class Parser {
           if (result0 != null) {
             result1 = [];
             pos2 = pos;
-            if (input.substr(pos, 2) == "\\\"") {
+            if (input.substring(pos, pos+2) == "\\\"") {
               result2 = "\\\"";
               pos += 2;
             } else {
@@ -1843,7 +1843,7 @@ class Parser {
             if (result2 == null) {
               pos2 = pos;
               pos3 = pos;
-              if (input.charCodeAt(pos) == 92) {
+              if (input.codeUnitAt(pos) == 92) {
                 result2 = "\\";
                 pos++;
               } else {
@@ -1853,8 +1853,8 @@ class Parser {
                 }
               }
               if (result2 != null) {
-                if (r'^[^"]'.test(input.charAt(pos))) {
-                  result3 = input.charAt(pos);
+                if (new RegExp(r'^[^"]').hasMatch(input[pos])) {
+                  result3 = input[pos];
                   pos++;
                 } else {
                   result3 = null;
@@ -1879,8 +1879,8 @@ class Parser {
                 pos = pos2;
               }
               if (result2 == null) {
-                if (r'^[^"]'.test(input.charAt(pos))) {
-                  result2 = input.charAt(pos);
+                if (new RegExp(r'^[^"]').hasMatch(input[pos])) {
+                  result2 = input[pos];
                   pos++;
                 } else {
                   result2 = null;
@@ -1893,7 +1893,7 @@ class Parser {
             while (result2 != null) {
               result1.add(result2);
               pos2 = pos;
-              if (input.substr(pos, 2) == "\\\"") {
+              if (input.substring(pos, pos+2) == "\\\"") {
                 result2 = "\\\"";
                 pos += 2;
               } else {
@@ -1911,7 +1911,7 @@ class Parser {
               if (result2 == null) {
                 pos2 = pos;
                 pos3 = pos;
-                if (input.charCodeAt(pos) == 92) {
+                if (input.codeUnitAt(pos) == 92) {
                   result2 = "\\";
                   pos++;
                 } else {
@@ -1921,8 +1921,8 @@ class Parser {
                   }
                 }
                 if (result2 != null) {
-                  if (r'^[^"]'.test(input.charAt(pos))) {
-                    result3 = input.charAt(pos);
+                  if (new RegExp(r'^[^"]').hasMatch(input[pos])) {
+                    result3 = input[pos];
                     pos++;
                   } else {
                     result3 = null;
@@ -1947,8 +1947,8 @@ class Parser {
                   pos = pos2;
                 }
                 if (result2 == null) {
-                  if (r'^[^"]'.test(input.charAt(pos))) {
-                    result2 = input.charAt(pos);
+                  if (new RegExp(r'^[^"]').hasMatch(input[pos])) {
+                    result2 = input[pos];
                     pos++;
                   } else {
                     result2 = null;
@@ -1960,7 +1960,7 @@ class Parser {
               }
             }
             if (result1 != null) {
-              if (input.charCodeAt(pos) == 34) {
+              if (input.codeUnitAt(pos) == 34) {
                 result2 = "\"";
                 pos++;
               } else {
@@ -2004,8 +2004,8 @@ class Parser {
     var pos0;
 
     pos0 = pos;
-    if (input.substr(pos, 4).toLowerCase() == "node") {
-      result0 = input.substr(pos, 4);
+    if (input.substring(pos, pos+4).toLowerCase() == "node") {
+      result0 = input.substring(pos, pos+4);
       pos += 4;
     } else {
       result0 = null;
@@ -2027,8 +2027,8 @@ class Parser {
     var pos0;
 
     pos0 = pos;
-    if (input.substr(pos, 4).toLowerCase() == "edge") {
-      result0 = input.substr(pos, 4);
+    if (input.substring(pos, pos+4).toLowerCase() == "edge") {
+      result0 = input.substring(pos, pos+4);
       pos += 4;
     } else {
       result0 = null;
@@ -2050,8 +2050,8 @@ class Parser {
     var pos0;
 
     pos0 = pos;
-    if (input.substr(pos, 5).toLowerCase() == "graph") {
-      result0 = input.substr(pos, 5);
+    if (input.substring(pos, pos+5).toLowerCase() == "graph") {
+      result0 = input.substring(pos, pos+5);
       pos += 5;
     } else {
       result0 = null;
@@ -2073,8 +2073,8 @@ class Parser {
     var pos0;
 
     pos0 = pos;
-    if (input.substr(pos, 7).toLowerCase() == "digraph") {
-      result0 = input.substr(pos, 7);
+    if (input.substring(pos, pos+7).toLowerCase() == "digraph") {
+      result0 = input.substring(pos, pos+7);
       pos += 7;
     } else {
       result0 = null;
@@ -2096,8 +2096,8 @@ class Parser {
     var pos0;
 
     pos0 = pos;
-    if (input.substr(pos, 8).toLowerCase() == "subgraph") {
-      result0 = input.substr(pos, 8);
+    if (input.substring(pos, pos+8).toLowerCase() == "subgraph") {
+      result0 = input.substring(pos, pos+8);
       pos += 8;
     } else {
       result0 = null;
@@ -2119,8 +2119,8 @@ class Parser {
     var pos0;
 
     pos0 = pos;
-    if (input.substr(pos, 6).toLowerCase() == "strict") {
-      result0 = input.substr(pos, 6);
+    if (input.substring(pos, pos+6).toLowerCase() == "strict") {
+      result0 = input.substring(pos, pos+6);
       pos += 6;
     } else {
       result0 = null;
@@ -2162,8 +2162,8 @@ class Parser {
     var result0, result1;
 
     reportFailures++;
-    if (r"^[ \t\r\n]".test(input.charAt(pos))) {
-      result1 = input.charAt(pos);
+    if (new RegExp(r"^[ \t\r\n]").hasMatch(input[pos])) {
+      result1 = input[pos];
       pos++;
     } else {
       result1 = null;
@@ -2175,8 +2175,8 @@ class Parser {
       result0 = [];
       while (result1 != null) {
         result0.add(result1);
-        if (r"^[ \t\r\n]".test(input.charAt(pos))) {
-          result1 = input.charAt(pos);
+        if (new RegExp(r"^[ \t\r\n]").hasMatch(input[pos])) {
+          result1 = input[pos];
           pos++;
         } else {
           result1 = null;
@@ -2201,7 +2201,7 @@ class Parser {
 
     reportFailures++;
     pos0 = pos;
-    if (input.substr(pos, 2) == "//") {
+    if (input.substring(pos, pos+2) == "//") {
       result0 = "//";
       pos += 2;
     } else {
@@ -2212,8 +2212,8 @@ class Parser {
     }
     if (result0 != null) {
       result1 = [];
-      if (r"^[^\n]".test(input.charAt(pos))) {
-        result2 = input.charAt(pos);
+      if (new RegExp(r"^[^\n]").hasMatch(input[pos])) {
+        result2 = input[pos];
         pos++;
       } else {
         result2 = null;
@@ -2223,8 +2223,8 @@ class Parser {
       }
       while (result2 != null) {
         result1.add(result2);
-        if (r"^[^\n]".test(input.charAt(pos))) {
-          result2 = input.charAt(pos);
+        if (new RegExp(r"^[^\n]").hasMatch(input[pos])) {
+          result2 = input[pos];
           pos++;
         } else {
           result2 = null;
@@ -2245,7 +2245,7 @@ class Parser {
     }
     if (result0 == null) {
       pos0 = pos;
-      if (input.substr(pos, 2) == "/*") {
+      if (input.substring(pos, pos+2) == "/*") {
         result0 = "/*";
         pos += 2;
       } else {
@@ -2259,7 +2259,7 @@ class Parser {
         pos1 = pos;
         pos2 = pos;
         reportFailures++;
-        if (input.substr(pos, 2) == "*/") {
+        if (input.substring(pos, pos+2) == "*/") {
           result2 = "*/";
           pos += 2;
         } else {
@@ -2277,7 +2277,7 @@ class Parser {
         }
         if (result2 != null) {
           if (input.length > pos) {
-            result3 = input.charAt(pos);
+            result3 = input[pos];
             pos++;
           } else {
             result3 = null;
@@ -2300,7 +2300,7 @@ class Parser {
           pos1 = pos;
           pos2 = pos;
           reportFailures++;
-          if (input.substr(pos, 2) == "*/") {
+          if (input.substring(pos, pos+2) == "*/") {
             result2 = "*/";
             pos += 2;
           } else {
@@ -2318,7 +2318,7 @@ class Parser {
           }
           if (result2 != null) {
             if (input.length > pos) {
-              result3 = input.charAt(pos);
+              result3 = input[pos];
               pos++;
             } else {
               result3 = null;
@@ -2338,7 +2338,7 @@ class Parser {
           }
         }
         if (result1 != null) {
-          if (input.substr(pos, 2) == "*/") {
+          if (input.substring(pos, pos+2) == "*/") {
             result2 = "*/";
             pos += 2;
           } else {
@@ -2407,7 +2407,7 @@ class Parser {
     var seenCR = false;
 
     for (var i = 0; i < Math.max(pos, rightmostFailuresPos); i++) {
-      var ch = input.charAt(i);
+      var ch = input[i];
       if (ch == "\n") {
         if (!seenCR) { line++; }
         column = 1;
