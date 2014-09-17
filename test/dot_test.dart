@@ -280,23 +280,27 @@ dotTest() {
         expect(() { dot.parse(d); }, throws);
       });
 
-//      group('it can parse all files in test-data', () {
-//        var testDataDir = path.resolve(__dirname, 'test-data');
-//        fs.readdirSync(testDataDir).forEach((file) {
-//          it(file, () {
-//            var f = fs.readFileSync(path.resolve(testDataDir, file), 'UTF-8');
-//            dot.parse(f);
-//          });
-//        });
-//      });
+      group('it can parse all files in test-data', () {
+        final testDataDir = new Directory(path.join(Uri.base.toFilePath(), "test-data"));
+        testDataDir.listSync(followLinks: false)
+            .where((x) { return FileSystemEntity.isFileSync(x.path); })
+            .forEach((file) {
+          test(path.basename(file.path), () {
+            final input = file.readAsStringSync();
+            dot.parse(input);
+          });
+        });
+      });
     });
 
 //    group('it can write and parse without loss', () {
-//      var testDataDir = path.resolve(__dirname, 'test-data');
-//      fs.readdirSync(testDataDir).forEach((file) {
-//        test(file, () {
-//          var f = fs.readFileSync(path.resolve(testDataDir, file), 'UTF-8');
-//          var g = dot.parse(f);
+//      final testDataDir = new Directory(path.join(Uri.base.toFilePath(), "test-data"));
+//      testDataDir.listSync(followLinks: false)
+//          .where((x) { return FileSystemEntity.isFileSync(x.path); })
+//          .forEach((file) {
+//        test(path.basename(file.path), () {
+//          final input = file.readAsStringSync();
+//          var g = dot.parse(input);
 //          expect(dot.parse(dot.write(g)), equals(g));
 //        });
 //      });

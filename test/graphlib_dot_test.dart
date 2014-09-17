@@ -1,5 +1,8 @@
 library graphlib.dot.test;
 
+import 'dart:io' show File, Directory, Platform, FileSystemEntity, FileSystemException;
+import 'package:path/path.dart' as path;
+
 import 'package:unittest/unittest.dart';
 import 'package:graphlib/graphlib.dart';
 import 'package:graphlib_dot/graphlib_dot.dart' as dot;

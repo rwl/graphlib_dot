@@ -71,7 +71,7 @@ class DefaultAttrs {
  *
  * @param {String} str the DOT string representation of one or more graphs
  */
-BaseGraph parse(str) {
+BaseGraph parse(String str) {
   var parseTree = dot_parser.parse(str, "graphStmt");
   return buildGraph(parseTree);
 }

@@ -17,14 +17,14 @@ quote(s) {
    * because JSHint does not like the first and IE the second.
    */
    return '"' + s
-    .replace("\\"/*g*/, '\\\\')  // backslash
-    .replace('"'/*g*/, '\\"')    // closing quote character
-    .replace("\x08"/*g*/, '\\b') // backspace
-    .replace("\t"/*g*/, '\\t')   // horizontal tab
-    .replace("\n"/*g*/, '\\n')   // line feed
-    .replace("\f"/*g*/, '\\f')   // form feed
-    .replace("\r"/*g*/, '\\r')   // carriage return
-    .replace("[\x00-\x07\x0B\x0E-\x1F\x80-\uFFFF]"/*g*/, escape)
+    .replaceAll("\\"/*g*/, '\\\\')  // backslash
+    .replaceAll('"'/*g*/, '\\"')    // closing quote character
+    .replaceAll("\x08"/*g*/, '\\b') // backspace
+    .replaceAll("\t"/*g*/, '\\t')   // horizontal tab
+    .replaceAll("\n"/*g*/, '\\n')   // line feed
+    .replaceAll("\f"/*g*/, '\\f')   // form feed
+    .replaceAll("\r"/*g*/, '\\r')   // carriage return
+//    .replaceAll("[\x00-\x07\x0B\x0E-\x1F\x80-\uFFFF]"/*g*/, escape)
     + '"';
 }
 
@@ -156,8 +156,8 @@ class Parser {
         cleanupExpected(rightmostFailuresExpected),
         found,
         offset,
-        errorPosition.line,
-        errorPosition.column
+        errorPosition['line'],
+        errorPosition['column']
       );
     }
 
@@ -1310,6 +1310,7 @@ class Parser {
     if (result0 != null) {
       result0 = ((offset, k, v) {
             var result = {};
+//            result[k] = convert(v[3]);
             result[k] = v[3];
             return result;
           })(pos0, result0[0], result0[1]);
@@ -1370,7 +1371,10 @@ class Parser {
       pos = pos1;
     }
     if (result0 != null) {
-      result0 = ((offset, id) { return id; })(pos0, result0[0]);
+      result0 = ((offset, id) {
+        //return convert(id);
+        return id;
+      })(pos0, result0[0]);
     }
     if (result0 == null) {
       pos = pos0;
@@ -1702,7 +1706,9 @@ class Parser {
         pos = pos1;
       }
       if (result0 != null) {
-        result0 = ((offset, sign, dot, after) { return sign + dot + after.join(""); })(pos0, result0[0], result0[1], result0[2]);
+        result0 = ((offset, sign, dot, after) {
+          return sign + dot + after.join("");
+        })(pos0, result0[0], result0[1], result0[2]);
       }
       if (result0 == null) {
         pos = pos0;
@@ -1990,7 +1996,9 @@ class Parser {
             pos = pos1;
           }
           if (result0 != null) {
-            result0 = ((offset, id) { return id.join(""); })(pos0, result0[1]);
+            result0 = ((offset, id) {
+              return id.join("");
+            })(pos0, result0[1]);
           }
           if (result0 == null) {
             pos = pos0;
@@ -2428,7 +2436,7 @@ class Parser {
       }
     }
 
-    return { line: line, column: column };
+    return { 'line': line, 'column': column };
   }
 
   rightBiasedMerge(Map lhs, Map rhs) {
@@ -2476,12 +2484,12 @@ class SyntaxError {
         expectedHumanized = expected[0];
         break;
       default:
-        expectedHumanized = expected.slice(0, expected.length - 1).join(", ")
+        expectedHumanized = expected.sublist(0, expected.length - 1).join(", ")
           + " or "
           + expected[expected.length - 1];
     }
 
-    foundHumanized = found ? quote(found) : "end of input";
+    foundHumanized = found != null && found.length > 0 ? quote(found) : "end of input";
 
     return "Expected " + expectedHumanized + " but " + foundHumanized + " found.";
   }
@@ -2493,8 +2501,20 @@ class SyntaxError {
   final int offset;
   final int line;
   final int column;
+
+  String toString() => message;
 }
 
 String substr(String s, int i, int l) => s.substring(i, Math.min(i+l, s.length));
 
 String charAt(String s, int i) => (i < s.length) ? s[i] : "";
+
+/*Object convert(String s) {
+  try {
+    return num.parse(s);
+  } on FormatException {
+    if (s == 'true') return true;
+    else if (s == 'false') return false;
+  }
+  return s;
+}*/
