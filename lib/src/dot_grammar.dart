@@ -62,6 +62,7 @@ class Parser {
   List rightmostFailuresExpected = [];
 
   bool directed = false;
+  bool quotedId = false;
 
   String input;
 
@@ -1310,8 +1311,11 @@ class Parser {
     if (result0 != null) {
       result0 = ((offset, k, v) {
             var result = {};
-//            result[k] = convert(v[3]);
-            result[k] = v[3];
+            if (quotedId) {
+              result[k] = v[3];
+            } else {
+              result[k] = convert(v[3]);
+            }
             return result;
           })(pos0, result0[0], result0[1]);
     }
@@ -1372,7 +1376,11 @@ class Parser {
     }
     if (result0 != null) {
       result0 = ((offset, id) {
-        //return convert(id);
+        if (quotedId) {
+          return id;
+        } else {
+          return convert(id);
+        }
         return id;
       })(pos0, result0[0]);
     }
@@ -1590,6 +1598,8 @@ class Parser {
     var result0, result1, result2, result3, result4;
     var pos0, pos1, pos2, pos3;
 
+    quotedId = false;
+
     reportFailures++;
     pos0 = pos;
     pos1 = pos;
@@ -1636,7 +1646,9 @@ class Parser {
       pos = pos1;
     }
     if (result0 != null) {
-      result0 = ((offset, fst, rest) { return fst + rest.join(""); })(pos0, result0[0], result0[1]);
+      result0 = ((offset, fst, rest) {
+        return fst + rest.join("");
+      })(pos0, result0[0], result0[1]);
     }
     if (result0 == null) {
       pos = pos0;
@@ -1996,6 +2008,9 @@ class Parser {
             pos = pos1;
           }
           if (result0 != null) {
+            if (result0[0] == '"' && result0[2] == '"') {
+              quotedId = true;
+            }
             result0 = ((offset, id) {
               return id.join("");
             })(pos0, result0[1]);
@@ -2028,7 +2043,9 @@ class Parser {
       }
     }
     if (result0 != null) {
-      result0 = ((offset, k) { return k.toLowerCase(); })(pos0, result0);
+      result0 = ((offset, k) {
+        return k.toLowerCase();
+      })(pos0, result0);
     }
     if (result0 == null) {
       pos = pos0;
@@ -2509,7 +2526,7 @@ String substr(String s, int i, int l) => s.substring(i, Math.min(i+l, s.length))
 
 String charAt(String s, int i) => (i < s.length) ? s[i] : "";
 
-/*Object convert(String s) {
+Object convert(String s) {
   try {
     return num.parse(s);
   } on FormatException {
@@ -2517,4 +2534,4 @@ String charAt(String s, int i) => (i < s.length) ? s[i] : "";
     else if (s == 'false') return false;
   }
   return s;
-}*/
+}

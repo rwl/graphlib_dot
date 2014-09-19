@@ -51,8 +51,16 @@ dotTest() {
       test('can parse a numeric id', () {
         var g = dot.parse('digraph { 12; -12; 12.34; -12.34; .34; -.34 }');
         expect(g.nodes().length, equals(6));
+        [12, 12, 12.34, -12.34, .34, -.34].forEach((x) {
+          expect(g.nodes(), contains(x));
+        });
+      });
+
+      test('can parse a quoted numeric id', () {
+        var g = dot.parse('digraph { "12"; "-12"; "12.34"; "-12.34"; ".34"; "-.34" }');
+        expect(g.nodes().length, equals(6));
         ['12', '12', '12.34', '-12.34', '.34', '-.34'].forEach((x) {
-          expect(g.nodes(), anyElement(isIn(x)));
+          expect(g.nodes(), contains(x));
         });
       });
 
@@ -198,7 +206,7 @@ dotTest() {
       test('does not carry attributes from one node over to the next', () {
         var d = 'digraph { node [color=black]; n1 [label="n1" fontsize=12]; n2 [label="n2"]; n1 -> n2; }';
         var g = dot.parse(d);
-        expect(g.node('n1')['fontsize'], equals('12'));
+        expect(g.node('n1')['fontsize'], equals(12));
         expect(g.node('n2')['fontsize'], isNull, reason: 'n2.fontsize should not be defined');
       });
 
@@ -213,7 +221,7 @@ dotTest() {
         var d = 'digraph { node [label=xyz]; n2 [label=123]; n1 -> n2; }';
         var g = dot.parse(d);
         expect(g.node('n1')['label'], equals('xyz'));
-        expect(g.node('n2')['label'], equals('123'));
+        expect(g.node('n2')['label'], equals(123));
       });
 
       test('supports an implicit subgraph statement', () {
@@ -249,24 +257,24 @@ dotTest() {
       test('applies edge attributes to all nodes in a subgraph', () {
         var d = 'digraph { x -> {y; z} [prop=123] }';
         var g = dot.parse(d);
-        expect(g.edge(g.outEdges('x', 'y')[0])['prop'], equals('123'));  // TODO: String prop '123'
-        expect(g.edge(g.outEdges('x', 'z')[0])['prop'], equals('123'));  // TODO: String prop '123'
+        expect(g.edge(g.outEdges('x', 'y')[0])['prop'], equals(123));  // TODO: String prop '123'
+        expect(g.edge(g.outEdges('x', 'z')[0])['prop'], equals(123));  // TODO: String prop '123'
       });
 
       test('only applies attributes in a subgraph to nodes created in that subgraph', () {
         var d = 'digraph { x; subgraph { node [prop=123]; y; z; } }';
         var g = dot.parse(d);
         expect(g.node('x')['prop'], isNull);
-        expect(g.node('y')['prop'], equals('123'));  // TODO: String prop '123'
-        expect(g.node('z')['prop'], equals('123'));  // TODO: String prop '123'
+        expect(g.node('y')['prop'], equals(123));  // TODO: String prop '123'
+        expect(g.node('z')['prop'], equals(123));  // TODO: String prop '123'
       });
 
       test('applies parent defaults to subgraph nodes when appropriate', () {
         var d = 'digraph { node [prop=123]; subgraph { x; subgraph { y; z [prop=456]; } } }';
         var g = dot.parse(d);
-        expect(g.node('x')['prop'], equals('123'));  // TODO: String prop '123'
-        expect(g.node('y')['prop'], equals('123'));  // TODO: String prop '123'
-        expect(g.node('z')['prop'], equals('456'));  // TODO: String prop '456'
+        expect(g.node('x')['prop'], equals(123));  // TODO: String prop '123'
+        expect(g.node('y')['prop'], equals(123));  // TODO: String prop '123'
+        expect(g.node('z')['prop'], equals(456));  // TODO: String prop '456'
       });
 
       test('can handle quoted unicode', () {
@@ -389,7 +397,7 @@ dotTest() {
         expect(new RegExp(r'\"this.key.needs.quotes\"').hasMatch(dot.write(g)), isTrue, reason: 'key was not quoted');
 
         var g2 = dot.parse(dot.write(g));
-        expect(g2.node('1'), contains('this.key.needs.quotes')); // TODO: String key '1'
+        expect(g2.node(1), contains('this.key.needs.quotes')); // TODO: String key '1'
       });
 
       test('escapes attr values as needed', () {
@@ -398,7 +406,7 @@ dotTest() {
         expect(new RegExp(r'\"this.val.needs.quotes\"').hasMatch(dot.write(g)), isTrue, reason: 'value was not quoted');
 
         var g2 = dot.parse(dot.write(g));
-        expect(g2.node('1')['key'], equals('this.val.needs.quotes')); // TODO: String key '1'
+        expect(g2.node(1)['key'], equals('this.val.needs.quotes')); // TODO: String key '1'
       });
 
       test('can write a non-compound graph', () {
@@ -425,7 +433,7 @@ dotTest() {
         g.addNode(1);
 
         var g2 = dot.parse(dot.write(g));
-        expect(g2.nodes(), unorderedEquals(['1']));
+        expect(g2.nodes(), unorderedEquals([1]));  // TODO: String key '1'
       });
 
       test('can write an edge without attributes', () {
