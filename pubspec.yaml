@@ -1,8 +1,9 @@
 name: graphlib_dot
-version: 0.0.1
+version: 0.0.2
 author: Richard Lincoln <r.w.lincoln@gmail.com>
 description: A DOT language parser / writer for graphlib.
+homepage: https://github.com/rwl/graphlib_dot
 dependencies:
-  graphlib:
-    path: ../graphlib
+  graphlib: '>=0.0.1 <0.0.2'
+dev_dependencies:
   unittest: any

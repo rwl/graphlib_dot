@@ -1,5 +1,7 @@
 # graphlib_dot
 
+## DEPRECATED (See [graphlib](https://pub.dartlang.org/packages/graphlib))
+
 A DOT language parser / writer for [graphlib](https://pub.dartlang.org/packages/graphlib).
 Ported to Dart from [graphlib-dot](https://github.com/cpettitt/graphlib-dot)
 by [Richard Lincoln](http://git.io/rwl).
